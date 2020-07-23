@@ -135,64 +135,64 @@ class APIBuilder {
         this.$offset = undefined;
         this.$join = [];
     }
-    createOne(instance, { keepOption }) {
+    createOne(instance, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.post(this.buildUrl(), instance);
-            if (!keepOption) {
+            if (!option.keepOption) {
                 this.reset();
             }
             return result;
         });
     }
-    createMany(instances, { keepOption }) {
+    createMany(instances, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.post(this.buildUrl(), instances);
-            if (!keepOption) {
+            if (!option.keepOption) {
                 this.reset();
             }
             return result;
         });
     }
-    getOne(id, { keepOption }) {
+    getOne(id, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.get(this.buildUrl(id));
-            if (!keepOption) {
+            if (!option.keepOption) {
                 this.reset();
             }
             return result;
         });
     }
-    getMany({ keepOption }) {
+    getMany(option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.get(this.buildUrl());
-            if (!keepOption) {
+            if (!option.keepOption) {
                 this.reset();
             }
             return result;
         });
     }
-    updateOne(id, instance, { keepOption }) {
+    updateOne(id, instance, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.patch(this.buildUrl(id), instance);
-            if (!keepOption) {
+            if (!option.keepOption) {
                 this.reset();
             }
             return result;
         });
     }
-    updateMany(instances, { keepOption }) {
+    updateMany(instances, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.patch(this.buildUrl(), instances);
-            if (!keepOption) {
+            if (!option.keepOption) {
                 this.reset();
             }
             return result;
         });
     }
-    deleteOne(id, { keepOption }) {
+    deleteOne(id, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.delete(this.buildUrl(id));
-            if (!keepOption) {
+            if (!option.keepOption) {
                 this.reset();
             }
             return result;

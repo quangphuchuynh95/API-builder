@@ -12,6 +12,10 @@ export interface APIBuilderOptions {
   join: string[]
 }
 
+export interface AfterCallAPIOptions {
+  keepOption?: boolean;
+}
+
 export default class APIBuilder {
   static axios = axios;
 
@@ -156,57 +160,57 @@ export default class APIBuilder {
     this.$join = [];
   }
 
-  async createOne(instance, { keepOption }) {
+  async createOne(instance, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.post(this.buildUrl(), instance);
-    if (!keepOption) {
+    if (!option.keepOption) {
       this.reset();
     }
     return result;
   }
 
-  async createMany(instances, { keepOption }) {
+  async createMany(instances, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.post(this.buildUrl(), instances);
-    if (!keepOption) {
+    if (!option.keepOption) {
       this.reset();
     }
     return result;
   }
 
-  async getOne(id, { keepOption }) {
+  async getOne(id, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.get(this.buildUrl(id));
-    if (!keepOption) {
+    if (!option.keepOption) {
       this.reset();
     }
     return result;
   }
 
-  async getMany({ keepOption }) {
+  async getMany(option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.get(this.buildUrl());
-    if (!keepOption) {
+    if (!option.keepOption) {
       this.reset();
     }
     return result;
   }
 
-  async updateOne(id, instance, { keepOption }) {
+  async updateOne(id, instance, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.patch(this.buildUrl(id), instance);
-    if (!keepOption) {
+    if (!option.keepOption) {
       this.reset();
     }
     return result;
   }
 
-  async updateMany(instances, { keepOption }) {
+  async updateMany(instances, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.patch(this.buildUrl(), instances);
-    if (!keepOption) {
+    if (!option.keepOption) {
       this.reset();
     }
     return result;
   }
 
-  async deleteOne(id, { keepOption }) {
+  async deleteOne(id, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.delete(this.buildUrl(id));
-    if (!keepOption) {
+    if (!option.keepOption) {
       this.reset();
     }
     return result;

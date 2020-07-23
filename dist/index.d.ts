@@ -9,6 +9,9 @@ export interface APIBuilderOptions {
     offset: number;
     join: string[];
 }
+export interface AfterCallAPIOptions {
+    keepOption?: boolean;
+}
 export default class APIBuilder {
     static axios: import("axios").AxiosStatic;
     static useAxios(axiosInstance: any): void;
@@ -35,25 +38,11 @@ export default class APIBuilder {
     offset(num: number): this;
     buildUrl(id?: any): string;
     reset(): void;
-    createOne(instance: any, { keepOption }: {
-        keepOption: any;
-    }): Promise<import("axios").AxiosResponse<any>>;
-    createMany(instances: any, { keepOption }: {
-        keepOption: any;
-    }): Promise<import("axios").AxiosResponse<any>>;
-    getOne(id: any, { keepOption }: {
-        keepOption: any;
-    }): Promise<import("axios").AxiosResponse<any>>;
-    getMany({ keepOption }: {
-        keepOption: any;
-    }): Promise<import("axios").AxiosResponse<any>>;
-    updateOne(id: any, instance: any, { keepOption }: {
-        keepOption: any;
-    }): Promise<import("axios").AxiosResponse<any>>;
-    updateMany(instances: any, { keepOption }: {
-        keepOption: any;
-    }): Promise<import("axios").AxiosResponse<any>>;
-    deleteOne(id: any, { keepOption }: {
-        keepOption: any;
-    }): Promise<import("axios").AxiosResponse<any>>;
+    createOne(instance: any, option?: AfterCallAPIOptions): Promise<import("axios").AxiosResponse<any>>;
+    createMany(instances: any, option?: AfterCallAPIOptions): Promise<import("axios").AxiosResponse<any>>;
+    getOne(id: any, option?: AfterCallAPIOptions): Promise<import("axios").AxiosResponse<any>>;
+    getMany(option?: AfterCallAPIOptions): Promise<import("axios").AxiosResponse<any>>;
+    updateOne(id: any, instance: any, option?: AfterCallAPIOptions): Promise<import("axios").AxiosResponse<any>>;
+    updateMany(instances: any, option?: AfterCallAPIOptions): Promise<import("axios").AxiosResponse<any>>;
+    deleteOne(id: any, option?: AfterCallAPIOptions): Promise<import("axios").AxiosResponse<any>>;
 }
