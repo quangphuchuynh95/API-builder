@@ -2,6 +2,16 @@ import axios from 'axios';
 import FilterItem from './classes/FilterItem';
 import OrderItem from './classes/OrderItem';
 
+export interface APIBuilderOptions {
+  endpoint: string
+  filters: FilterItem[]
+  or: FilterItem[]
+  order: OrderItem[]
+  limit: number
+  offset: number
+  join: string[]
+}
+
 export default class APIBuilder {
   static axios = axios;
 
@@ -9,97 +19,39 @@ export default class APIBuilder {
     this.axios = axiosInstance;
   }
 
-  /**
-   * @var {String}
-   */
-  $endpoint;
+  $endpoint: string;
+  $filters: FilterItem[] = [];
+  $or: FilterItem[] = [];
+  $order: OrderItem[] = [];
+  $join: string[] = [];
+  $limit: number;
+  $offset: number;
 
-  /**
-   * @var {FilterItem[]} format: {field: string, op: string, value: string}
-   */
-  $filters = [];
-
-  /**
-   * @var {FilterItem[]} format: {field: string, op: string, value: string}
-   */
-  $or = [];
-
-  /**
-   * @var {OrderItem[]}
-   */
-  $order = [];
-
-  /**
-   * @var {String[]}
-   */
-  $join = [];
-
-  /**
-   * @var {Number}
-   */
-  $limit;
-
-  /**
-   * @var {Number}
-   */
-  $offset;
-
-  /**
-   *
-   * @param {String} endpoint
-   * @param {Object[]} filters
-   * @param {Object[]} or
-   * @param {Object[]} order
-   * @param {String[]} join
-   * @param {Number} limit
-   * @param {Number} offset
-   */
-  constructor(
-    {
-      endpoint,
-      filters,
-      or,
-      order,
-      limit,
-      offset,
-      join,
-    },
-  ) {
-    this.$endpoint = endpoint || this.$endpoint;
-    this.$filters = filters || this.$filters;
-    this.$or = or || this.$or;
-    this.$order = order || this.$order;
-    this.$limit = limit || this.$limit;
-    this.$offset = offset || this.$offset;
-    this.$join = join || this.$join;
+  constructor(options: APIBuilderOptions) {
+    this.$endpoint = options.endpoint || this.$endpoint;
+    this.$filters = options.filters || this.$filters;
+    this.$or = options.or || this.$or;
+    this.$order = options.order || this.$order;
+    this.$limit = options.limit || this.$limit;
+    this.$offset = options.offset || this.$offset;
+    this.$join = options.join || this.$join;
   }
 
-  /**
-   * @param {String} name
-   * @param options
-   * @return {APIBuilder}
-   */
-  static store(name, options = {}) {
+  static store(name: string, options: APIBuilderOptions): APIBuilder {
     return new APIBuilder({
-      endpoint: `/${name}`,
       ...options,
+      endpoint: `/${name}`,
     });
   }
 
-  /**
-   *
-   * @param {String | String[]} tableName
-   * @param {boolean} or
-   * @return {APIBuilder}
-   */
-  join(tableName, or = false) {
+  join(tableName: string | string[]): this {
     if (Array.isArray(tableName)) {
-      this[or ? '$or' : '$join'] = [
-        ...this[or ? '$or' : '$join'],
+      this.$join = [
+        ...this.$join,
         ...tableName,
-      ];
+      ]
     } else {
-      this[or ? '$or' : '$join'].push(tableName);
+      this.$join.push(tableName);
     }
     return this;
   }
@@ -110,11 +62,11 @@ export default class APIBuilder {
    * @param {String} direction
    * @return {APIBuilder}
    */
-  order(field, direction = 'ASC') {
+  order(field: string | OrderItem[], direction = 'ASC') {
     if (Array.isArray(field)) {
       this.$order = [
         ...this.$order,
-        ...field.map((item) => new OrderItem(...item)),
+        ...field.map((item) => new OrderItem(item.field, item.direction)),
       ];
     } else {
       this.$order.push(new OrderItem(field, direction));
@@ -122,15 +74,7 @@ export default class APIBuilder {
     return this;
   }
 
-  /**
-   *
-   * @param {String} param1
-   * @param {String} param2
-   * @param {String} param3
-   * @param {boolean} or
-   * @return {APIBuilder}
-   */
-  filter(param1, param2 = undefined, param3 = undefined, or = false) {
+  filter(param1: string, param2: string = undefined, param3: string = undefined, or = false): this {
     let field;
     let op;
     let value;
@@ -156,26 +100,14 @@ export default class APIBuilder {
     return this;
   }
 
-  /**
-   *
-   * @param {number} page
-   * @param {number} perPage
-   * @return {APIBuilder}
-   */
-  page(page, perPage = 10) {
+  page(page: number, perPage: number = 10): this {
     const limit = perPage;
     const offset = (page - 1) * limit;
     this.limit(offset, limit);
     return this;
   }
 
-  /**
-   *
-   * @param {number} param1
-   * @param {number} param2
-   * @return {APIBuilder}
-   */
-  limit(param1, param2 = undefined) {
+  limit(param1: number, param2: number = undefined): this {
     if (param2 === undefined) {
       this.$limit = param1;
     } else {
@@ -185,20 +117,12 @@ export default class APIBuilder {
     return this;
   }
 
-  /**
-   *
-   * @param {number} num
-   * @return {APIBuilder}
-   */
-  offset(num) {
+  offset(num: number): this {
     this.$offset = num;
     return this;
   }
 
-  /**
-   * @return {String}
-   */
-  buildUrl(id) {
+  buildUrl(id?): string {
     const params = [
       ...this.$filters.map((filter) => `filter=${filter.field}||${filter.op}||${filter.value}`),
       ...this.$or.map((filter) => `or=${filter.field}||${filter.op}||${filter.value}`),
@@ -232,13 +156,7 @@ export default class APIBuilder {
     this.$join = [];
   }
 
-  /**
-   *
-   * @param {object} instance
-   * @param {boolean} keepOption
-   * @return {Promise<object>}
-   */
-  async createOne(instance, { keepOption } = {}) {
+  async createOne(instance, { keepOption }) {
     const result = await APIBuilder.axios.post(this.buildUrl(), instance);
     if (!keepOption) {
       this.reset();
@@ -246,12 +164,6 @@ export default class APIBuilder {
     return result;
   }
 
-  /**
-   *
-   * @param {object[]} instances
-   * @param {boolean} keepOption
-   * @return {Promise<object[]>}
-   */
   async createMany(instances, { keepOption }) {
     const result = await APIBuilder.axios.post(this.buildUrl(), instances);
     if (!keepOption) {
@@ -260,12 +172,7 @@ export default class APIBuilder {
     return result;
   }
 
-  /**
-   * @param {number} id
-   * @param {boolean} keepOption
-   * @return {Promise<object>}
-   */
-  async getOne(id, { keepOption } = {}) {
+  async getOne(id, { keepOption }) {
     const result = await APIBuilder.axios.get(this.buildUrl(id));
     if (!keepOption) {
       this.reset();
@@ -273,12 +180,7 @@ export default class APIBuilder {
     return result;
   }
 
-  /**
-   * @param {boolean} keepOption
-   * @param {boolean} count
-   * @return {Promise<object[]>}
-   */
-  async getMany({ keepOption } = {}) {
+  async getMany({ keepOption }) {
     const result = await APIBuilder.axios.get(this.buildUrl());
     if (!keepOption) {
       this.reset();
@@ -286,12 +188,6 @@ export default class APIBuilder {
     return result;
   }
 
-  /**
-   * @param {number} id
-   * @param {boolean} keepOption
-   * @param {object} instance
-   * @return {Promise<object>}
-   */
   async updateOne(id, instance, { keepOption }) {
     const result = await APIBuilder.axios.patch(this.buildUrl(id), instance);
     if (!keepOption) {
@@ -300,11 +196,6 @@ export default class APIBuilder {
     return result;
   }
 
-  /**
-   * @param {object[]} instances
-   * @param {boolean} keepOption
-   * @return {Promise<object[]>}
-   */
   async updateMany(instances, { keepOption }) {
     const result = await APIBuilder.axios.patch(this.buildUrl(), instances);
     if (!keepOption) {
@@ -313,11 +204,6 @@ export default class APIBuilder {
     return result;
   }
 
-  /**
-   * @param {number} id
-   * @param {boolean} keepOption
-   * @return {Promise<any>}
-   */
   async deleteOne(id, { keepOption }) {
     const result = await APIBuilder.axios.delete(this.buildUrl(id));
     if (!keepOption) {

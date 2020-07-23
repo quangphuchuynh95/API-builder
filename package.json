@@ -1,8 +1,8 @@
 {
   "name": "@quangphuc/frontend-api-builder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "API Builder for NestJS CURD",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/quangphuchuynh95/API-builder#readme",
   "dependencies": {
-    "axios": "^0.19.2"
+    "axios": "^0.19.2",
+    "typescript": "^3.9.7"
   },
   "devDependencies": {}
 }
