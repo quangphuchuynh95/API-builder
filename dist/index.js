@@ -44,12 +44,6 @@ class APIBuilder {
         }
         return this;
     }
-    /**
-     *
-     * @param {String | OrderItem[]} field
-     * @param {String} direction
-     * @return {APIBuilder}
-     */
     order(field, direction = 'ASC') {
         if (Array.isArray(field)) {
             this.$order = [

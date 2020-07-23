@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { AxiosInstance } from "axios";
 import FilterItem from './classes/FilterItem';
 import OrderItem from './classes/OrderItem';
 
@@ -17,9 +18,9 @@ export interface AfterCallAPIOptions {
 }
 
 export default class APIBuilder {
-  static axios = axios;
+  static axios: AxiosInstance = axios;
 
-  static useAxios(axiosInstance) {
+  static useAxios(axiosInstance: AxiosInstance) {
     this.axios = axiosInstance;
   }
 
@@ -60,13 +61,7 @@ export default class APIBuilder {
     return this;
   }
 
-  /**
-   *
-   * @param {String | OrderItem[]} field
-   * @param {String} direction
-   * @return {APIBuilder}
-   */
-  order(field: string | OrderItem[], direction = 'ASC') {
+  order(field: string | OrderItem[], direction: 'ASC' | 'DESC' = 'ASC'): this {
     if (Array.isArray(field)) {
       this.$order = [
         ...this.$order,

@@ -1,3 +1,4 @@
+import { AxiosInstance } from "axios";
 import FilterItem from './classes/FilterItem';
 import OrderItem from './classes/OrderItem';
 export interface APIBuilderOptions {
@@ -13,8 +14,8 @@ export interface AfterCallAPIOptions {
     keepOption?: boolean;
 }
 export default class APIBuilder {
-    static axios: import("axios").AxiosStatic;
-    static useAxios(axiosInstance: any): void;
+    static axios: AxiosInstance;
+    static useAxios(axiosInstance: AxiosInstance): void;
     $endpoint: string;
     $filters: FilterItem[];
     $or: FilterItem[];
@@ -25,13 +26,7 @@ export default class APIBuilder {
     constructor(options: APIBuilderOptions);
     static store(name: string, options: APIBuilderOptions): APIBuilder;
     join(tableName: string | string[]): this;
-    /**
-     *
-     * @param {String | OrderItem[]} field
-     * @param {String} direction
-     * @return {APIBuilder}
-     */
-    order(field: string | OrderItem[], direction?: string): this;
+    order(field: string | OrderItem[], direction?: 'ASC' | 'DESC'): this;
     filter(param1: string, param2?: string, param3?: string, or?: boolean): this;
     page(page: number, perPage?: number): this;
     limit(param1: number, param2?: number): this;
