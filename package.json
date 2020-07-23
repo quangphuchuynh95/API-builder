@@ -1,0 +1,23 @@
+{
+  "name": "@quangphuc/frontend-api-builder",
+  "version": "1.0.0",
+  "description": "API Builder for NestJS CURD",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quangphuchuynh95/API-builder.git"
+  },
+  "author": "quangphuc.huynh95",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/quangphuchuynh95/API-builder/issues"
+  },
+  "homepage": "https://github.com/quangphuchuynh95/API-builder#readme",
+  "dependencies": {
+    "axios": "^0.19.2"
+  },
+  "devDependencies": {}
+}
