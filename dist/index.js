@@ -29,8 +29,19 @@ class APIBuilder {
     static useAxios(axiosInstance) {
         this.axios = axiosInstance;
     }
-    static store(name, options) {
+    static store(name, options = {}) {
         return new APIBuilder(Object.assign(Object.assign({}, options), { endpoint: `/${name}` }));
+    }
+    clone() {
+        return new APIBuilder({
+            endpoint: this.$endpoint,
+            filters: this.$filters,
+            or: this.$or,
+            order: this.$order,
+            limit: this.$limit,
+            offset: this.$offset,
+            join: this.$join,
+        });
     }
     join(tableName) {
         if (Array.isArray(tableName)) {
@@ -88,6 +99,10 @@ class APIBuilder {
         this.limit(offset, limit);
         return this;
     }
+    nextPage() {
+        const offset = this.offset(this.$offset + this.$limit);
+        return this;
+    }
     limit(param1, param2 = undefined) {
         if (param2 === undefined) {
             this.$limit = param1;
@@ -115,6 +130,7 @@ class APIBuilder {
         if (this.$offset !== undefined) {
             params.push(`offset=${this.$offset}`);
         }
+        params.push(`count=1`);
         let url = this.$endpoint;
         if (id !== undefined) {
             url += `/${id}`;
@@ -129,10 +145,14 @@ class APIBuilder {
         this.$offset = undefined;
         this.$join = [];
     }
+    resetFilter() {
+        this.$filters = [];
+        return this;
+    }
     createOne(instance, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.post(this.buildUrl(), instance);
-            if (!option.keepOption) {
+            if (option.reset) {
                 this.reset();
             }
             return result;
@@ -141,7 +161,7 @@ class APIBuilder {
     createMany(instances, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.post(this.buildUrl(), instances);
-            if (!option.keepOption) {
+            if (option.reset) {
                 this.reset();
             }
             return result;
@@ -149,8 +169,8 @@ class APIBuilder {
     }
     getOne(id, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield APIBuilder.axios.get(this.buildUrl(id));
-            if (!option.keepOption) {
+            const result = yield APIBuilder.axios.get(this.clone().resetFilter().limit(0, 0).buildUrl(id));
+            if (option.reset) {
                 this.reset();
             }
             return result;
@@ -159,16 +179,22 @@ class APIBuilder {
     getMany(option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.get(this.buildUrl());
-            if (!option.keepOption) {
+            const isEndOfPage = result.data.rows < this.$limit;
+            if (option.reset) {
                 this.reset();
             }
-            return result;
+            return [
+                result.data.rows,
+                result.data.count,
+                isEndOfPage,
+                result,
+            ];
         });
     }
     updateOne(id, instance, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.patch(this.buildUrl(id), instance);
-            if (!option.keepOption) {
+            if (option.reset) {
                 this.reset();
             }
             return result;
@@ -177,7 +203,7 @@ class APIBuilder {
     updateMany(instances, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.patch(this.buildUrl(), instances);
-            if (!option.keepOption) {
+            if (option.reset) {
                 this.reset();
             }
             return result;
@@ -186,7 +212,7 @@ class APIBuilder {
     deleteOne(id, option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.delete(this.buildUrl(id));
-            if (!option.keepOption) {
+            if (option.reset) {
                 this.reset();
             }
             return result;

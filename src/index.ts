@@ -1,20 +1,20 @@
-import axios from 'axios';
+import axios, {AxiosResponse} from 'axios';
 import { AxiosInstance } from "axios";
 import FilterItem from './classes/FilterItem';
 import OrderItem from './classes/OrderItem';
 
 export interface APIBuilderOptions {
-  endpoint: string
-  filters: FilterItem[]
-  or: FilterItem[]
-  order: OrderItem[]
-  limit: number
-  offset: number
-  join: string[]
+  endpoint?: string
+  filters?: FilterItem[]
+  or?: FilterItem[]
+  order?: OrderItem[]
+  limit?: number
+  offset?: number
+  join?: string[]
 }
 
 export interface AfterCallAPIOptions {
-  keepOption?: boolean;
+  reset?: boolean;
 }
 
 export default class APIBuilder {
@@ -42,10 +42,22 @@ export default class APIBuilder {
     this.$join = options.join || this.$join;
   }
 
-  static store(name: string, options: APIBuilderOptions): APIBuilder {
+  static store(name: string, options: APIBuilderOptions = {}): APIBuilder {
     return new APIBuilder({
       ...options,
       endpoint: `/${name}`,
+    });
+  }
+
+  clone(): APIBuilder {
+    return new APIBuilder({
+      endpoint: this.$endpoint,
+      filters: this.$filters,
+      or: this.$or,
+      order: this.$order,
+      limit: this.$limit,
+      offset: this.$offset,
+      join: this.$join,
     });
   }
 
@@ -106,6 +118,11 @@ export default class APIBuilder {
     return this;
   }
 
+  nextPage(): this {
+    const offset = this.offset(this.$offset + this.$limit);
+    return this;
+  }
+
   limit(param1: number, param2: number = undefined): this {
     if (param2 === undefined) {
       this.$limit = param1;
@@ -136,6 +153,7 @@ export default class APIBuilder {
     if (this.$offset !== undefined) {
       params.push(`offset=${this.$offset}`);
     }
+    params.push(`count=1`);
 
     let url = this.$endpoint;
 
@@ -155,9 +173,14 @@ export default class APIBuilder {
     this.$join = [];
   }
 
+  resetFilter(): this {
+    this.$filters = [];
+    return this;
+  }
+
   async createOne(instance, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.post(this.buildUrl(), instance);
-    if (!option.keepOption) {
+    if (option.reset) {
       this.reset();
     }
     return result;
@@ -165,31 +188,39 @@ export default class APIBuilder {
 
   async createMany(instances, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.post(this.buildUrl(), instances);
-    if (!option.keepOption) {
+    if (option.reset) {
       this.reset();
     }
     return result;
   }
 
   async getOne(id, option: AfterCallAPIOptions = {}) {
-    const result = await APIBuilder.axios.get(this.buildUrl(id));
-    if (!option.keepOption) {
+    const result = await APIBuilder.axios.get(
+      this.clone().resetFilter().limit(0,0).buildUrl(id),
+    );
+    if (option.reset) {
       this.reset();
     }
     return result;
   }
 
-  async getMany(option: AfterCallAPIOptions = {}) {
+  async getMany(option: AfterCallAPIOptions = {}): Promise<[object[], number, boolean, AxiosResponse]> {
     const result = await APIBuilder.axios.get(this.buildUrl());
-    if (!option.keepOption) {
+    const isEndOfPage = result.data.rows < this.$limit;
+    if (option.reset) {
       this.reset();
     }
-    return result;
+    return [
+      result.data.rows,
+      result.data.count,
+      isEndOfPage,
+      result,
+    ] ;
   }
 
   async updateOne(id, instance, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.patch(this.buildUrl(id), instance);
-    if (!option.keepOption) {
+    if (option.reset) {
       this.reset();
     }
     return result;
@@ -197,7 +228,7 @@ export default class APIBuilder {
 
   async updateMany(instances, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.patch(this.buildUrl(), instances);
-    if (!option.keepOption) {
+    if (option.reset) {
       this.reset();
     }
     return result;
@@ -205,7 +236,7 @@ export default class APIBuilder {
 
   async deleteOne(id, option: AfterCallAPIOptions = {}) {
     const result = await APIBuilder.axios.delete(this.buildUrl(id));
-    if (!option.keepOption) {
+    if (option.reset) {
       this.reset();
     }
     return result;
