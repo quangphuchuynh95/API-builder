@@ -18,6 +18,7 @@ class APIBuilder {
         this.$or = [];
         this.$order = [];
         this.$join = [];
+        this.$otherParams = [];
         this.$endpoint = options.endpoint || this.$endpoint;
         this.$filters = options.filters || this.$filters;
         this.$or = options.or || this.$or;
@@ -42,6 +43,9 @@ class APIBuilder {
             offset: this.$offset,
             join: this.$join,
         });
+    }
+    appendParam(param, value) {
+        this.$otherParams.push([param, value]);
     }
     join(tableName) {
         if (Array.isArray(tableName)) {

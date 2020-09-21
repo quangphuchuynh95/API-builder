@@ -24,9 +24,11 @@ export default class APIBuilder {
     $join: string[];
     $limit: number;
     $offset: number;
+    $otherParams: [string, string][];
     constructor(options: APIBuilderOptions);
     static store(name: string, options?: APIBuilderOptions): APIBuilder;
     clone(): APIBuilder;
+    appendParam(param: any, value: any): void;
     join(tableName: string | string[]): this;
     order(field: string | OrderItem[], direction?: 'ASC' | 'DESC'): this;
     filter(param1: string, param2?: string, param3?: string, or?: boolean): this;

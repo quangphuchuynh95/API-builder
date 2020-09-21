@@ -31,6 +31,7 @@ export default class APIBuilder {
   $join: string[] = [];
   $limit: number;
   $offset: number;
+  $otherParams: [string, string][] = [];
 
   constructor(options: APIBuilderOptions) {
     this.$endpoint = options.endpoint || this.$endpoint;
@@ -59,6 +60,10 @@ export default class APIBuilder {
       offset: this.$offset,
       join: this.$join,
     });
+  }
+
+  appendParam(param, value) {
+    this.$otherParams.push([param, value])
   }
 
   join(tableName: string | string[]): this {
