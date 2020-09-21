@@ -64,6 +64,7 @@ export default class APIBuilder {
 
   appendParam(param, value) {
     this.$otherParams.push([param, value])
+    return this;
   }
 
   join(tableName: string | string[]): this {
