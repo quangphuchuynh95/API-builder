@@ -160,6 +160,10 @@ export default class APIBuilder {
     }
     params.push(`count=1`);
 
+    this.$otherParams.forEach((item) => {
+      params.push(item.join('='))
+    })
+
     let url = this.$endpoint;
 
     if (id !== undefined) {

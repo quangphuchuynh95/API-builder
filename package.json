@@ -1,6 +1,6 @@
 {
   "name": "@quangphuc/frontend-api-builder",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "API Builder for NestJS CURD",
   "main": "dist/index.js",
   "scripts": {

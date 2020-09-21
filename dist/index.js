@@ -135,6 +135,9 @@ class APIBuilder {
             params.push(`offset=${this.$offset}`);
         }
         params.push(`count=1`);
+        this.$otherParams.forEach((item) => {
+            params.push(item.join('='));
+        });
         let url = this.$endpoint;
         if (id !== undefined) {
             url += `/${id}`;
