@@ -3,6 +3,13 @@ import { AxiosInstance } from "axios";
 import FilterItem from './classes/FilterItem';
 import OrderItem from './classes/OrderItem';
 
+export type ID = string | number;
+
+export interface ResponseGetMany<T> {
+  rows: T[]
+  count: number
+}
+
 export interface APIBuilderOptions {
   endpoint?: string
   filters?: FilterItem[]
@@ -17,7 +24,7 @@ export interface AfterCallAPIOptions {
   reset?: boolean;
 }
 
-export default class APIBuilder {
+export default class APIBuilder<T> {
   static axios: AxiosInstance = axios;
 
   static useAxios(axiosInstance: AxiosInstance) {
@@ -43,14 +50,14 @@ export default class APIBuilder {
     this.$join = options.join || this.$join;
   }
 
-  static store(name: string, options: APIBuilderOptions = {}): APIBuilder {
+  static store<TE>(name: string, options: APIBuilderOptions = {}): APIBuilder<TE> {
     return new APIBuilder({
       ...options,
       endpoint: `/${name}`,
     });
   }
 
-  clone(): APIBuilder {
+  clone(): APIBuilder<T> {
     return new APIBuilder({
       endpoint: this.$endpoint,
       filters: this.$filters,
@@ -62,7 +69,7 @@ export default class APIBuilder {
     });
   }
 
-  appendParam(param, value) {
+  appendParam(param, value): this {
     this.$otherParams.push([param, value])
     return this;
   }
@@ -144,7 +151,7 @@ export default class APIBuilder {
     return this;
   }
 
-  buildUrl(id?): string {
+  buildUrl(id?: ID): string {
     const params = [
       ...this.$filters.map((filter) => `filter=${filter.field}||${filter.op}||${filter.value}`),
       ...this.$or.map((filter) => `or=${filter.field}||${filter.op}||${filter.value}`),
@@ -189,7 +196,7 @@ export default class APIBuilder {
   }
 
   async createOne(instance, option: AfterCallAPIOptions = {}) {
-    const result = await APIBuilder.axios.post(this.buildUrl(), instance);
+    const result = await APIBuilder.axios.post<T>(this.buildUrl(), instance);
     if (option.reset) {
       this.reset();
     }
@@ -197,15 +204,15 @@ export default class APIBuilder {
   }
 
   async createMany(instances, option: AfterCallAPIOptions = {}) {
-    const result = await APIBuilder.axios.post(this.buildUrl(), instances);
+    const result = await APIBuilder.axios.post<T>(this.buildUrl(), instances);
     if (option.reset) {
       this.reset();
     }
     return result;
   }
 
-  async getOne(id, option: AfterCallAPIOptions = {}) {
-    const result = await APIBuilder.axios.get(
+  async getOne(id: ID, option: AfterCallAPIOptions = {}) {
+    const result = await APIBuilder.axios.get<T>(
       this.clone().resetFilter().limit(0,0).buildUrl(id),
     );
     if (option.reset) {
@@ -214,9 +221,9 @@ export default class APIBuilder {
     return result;
   }
 
-  async getMany(option: AfterCallAPIOptions = {}): Promise<[object[], number, boolean, AxiosResponse]> {
-    const result = await APIBuilder.axios.get(this.buildUrl());
-    const isEndOfPage = result.data.rows < this.$limit;
+  async getMany(option: AfterCallAPIOptions = {}): Promise<[T[], number, boolean, AxiosResponse<ResponseGetMany<T>>]> {
+    const result = await APIBuilder.axios.get<ResponseGetMany<T>>(this.buildUrl());
+    const isEndOfPage = result.data.rows.length < this.$limit;
     if (option.reset) {
       this.reset();
     }
@@ -228,24 +235,24 @@ export default class APIBuilder {
     ] ;
   }
 
-  async updateOne(id, instance, option: AfterCallAPIOptions = {}) {
-    const result = await APIBuilder.axios.patch(this.buildUrl(id), instance);
+  async updateOne(id: ID, instance: Partial<T>, option: AfterCallAPIOptions = {}): Promise<AxiosResponse<T>> {
+    const result = await APIBuilder.axios.patch<T>(this.buildUrl(id), instance);
     if (option.reset) {
       this.reset();
     }
     return result;
   }
 
-  async updateMany(instances, option: AfterCallAPIOptions = {}) {
-    const result = await APIBuilder.axios.patch(this.buildUrl(), instances);
+  async updateMany(instances: Partial<T>[], option: AfterCallAPIOptions = {}): Promise<AxiosResponse<T[]>> {
+    const result = await APIBuilder.axios.patch<T[]>(this.buildUrl(), instances);
     if (option.reset) {
       this.reset();
     }
     return result;
   }
 
-  async deleteOne(id, option: AfterCallAPIOptions = {}) {
-    const result = await APIBuilder.axios.delete(this.buildUrl(id));
+  async deleteOne(id: ID, option: AfterCallAPIOptions = {}): Promise<AxiosResponse<T>> {
+    const result = await APIBuilder.axios.delete<T>(this.buildUrl(id));
     if (option.reset) {
       this.reset();
     }

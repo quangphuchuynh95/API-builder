@@ -2,6 +2,11 @@ import { AxiosResponse } from 'axios';
 import { AxiosInstance } from "axios";
 import FilterItem from './classes/FilterItem';
 import OrderItem from './classes/OrderItem';
+export declare type ID = string | number;
+export interface ResponseGetMany<T> {
+    rows: T[];
+    count: number;
+}
 export interface APIBuilderOptions {
     endpoint?: string;
     filters?: FilterItem[];
@@ -14,7 +19,7 @@ export interface APIBuilderOptions {
 export interface AfterCallAPIOptions {
     reset?: boolean;
 }
-export default class APIBuilder {
+export default class APIBuilder<T> {
     static axios: AxiosInstance;
     static useAxios(axiosInstance: AxiosInstance): void;
     $endpoint: string;
@@ -26,8 +31,8 @@ export default class APIBuilder {
     $offset: number;
     $otherParams: [string, string][];
     constructor(options: APIBuilderOptions);
-    static store(name: string, options?: APIBuilderOptions): APIBuilder;
-    clone(): APIBuilder;
+    static store<TE>(name: string, options?: APIBuilderOptions): APIBuilder<TE>;
+    clone(): APIBuilder<T>;
     appendParam(param: any, value: any): this;
     join(tableName: string | string[]): this;
     order(field: string | OrderItem[], direction?: 'ASC' | 'DESC'): this;
@@ -36,14 +41,14 @@ export default class APIBuilder {
     nextPage(): this;
     limit(param1: number, param2?: number): this;
     offset(num: number): this;
-    buildUrl(id?: any): string;
+    buildUrl(id?: ID): string;
     reset(): void;
     resetFilter(): this;
-    createOne(instance: any, option?: AfterCallAPIOptions): Promise<AxiosResponse<any>>;
-    createMany(instances: any, option?: AfterCallAPIOptions): Promise<AxiosResponse<any>>;
-    getOne(id: any, option?: AfterCallAPIOptions): Promise<AxiosResponse<any>>;
-    getMany(option?: AfterCallAPIOptions): Promise<[object[], number, boolean, AxiosResponse]>;
-    updateOne(id: any, instance: any, option?: AfterCallAPIOptions): Promise<AxiosResponse<any>>;
-    updateMany(instances: any, option?: AfterCallAPIOptions): Promise<AxiosResponse<any>>;
-    deleteOne(id: any, option?: AfterCallAPIOptions): Promise<AxiosResponse<any>>;
+    createOne(instance: any, option?: AfterCallAPIOptions): Promise<AxiosResponse<T>>;
+    createMany(instances: any, option?: AfterCallAPIOptions): Promise<AxiosResponse<T>>;
+    getOne(id: ID, option?: AfterCallAPIOptions): Promise<AxiosResponse<T>>;
+    getMany(option?: AfterCallAPIOptions): Promise<[T[], number, boolean, AxiosResponse<ResponseGetMany<T>>]>;
+    updateOne(id: ID, instance: Partial<T>, option?: AfterCallAPIOptions): Promise<AxiosResponse<T>>;
+    updateMany(instances: Partial<T>[], option?: AfterCallAPIOptions): Promise<AxiosResponse<T[]>>;
+    deleteOne(id: ID, option?: AfterCallAPIOptions): Promise<AxiosResponse<T>>;
 }

@@ -187,7 +187,7 @@ class APIBuilder {
     getMany(option = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield APIBuilder.axios.get(this.buildUrl());
-            const isEndOfPage = result.data.rows < this.$limit;
+            const isEndOfPage = result.data.rows.length < this.$limit;
             if (option.reset) {
                 this.reset();
             }
