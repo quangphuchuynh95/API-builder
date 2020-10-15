@@ -14,7 +14,7 @@ export interface APIBuilderOptions<T> {
     order?: OrderItem[];
     limit?: number;
     offset?: number;
-    join?: (keyof T)[];
+    join?: ((keyof T) | string)[];
 }
 export interface AfterCallAPIOptions {
     reset?: boolean;
@@ -26,7 +26,7 @@ export default class APIBuilder<T> {
     $filters: FilterItem[];
     $or: FilterItem[];
     $order: OrderItem[];
-    $join: (keyof T)[];
+    $join: ((keyof T) | string)[];
     $limit: number;
     $offset: number;
     $otherParams: [string, string][];
@@ -34,7 +34,7 @@ export default class APIBuilder<T> {
     static store<TE>(name: string, options?: APIBuilderOptions<TE>): APIBuilder<TE>;
     clone(): APIBuilder<T>;
     appendParam(param: any, value: any): this;
-    join(tableName: (keyof T) | (keyof T)[]): this;
+    join(tableName: ((keyof T) | string) | ((keyof T) | string)[]): this;
     order(field: string | OrderItem[], direction?: 'ASC' | 'DESC'): this;
     filter(param1: string, param2?: string, param3?: string, or?: boolean): this;
     page(page: number, perPage?: number): this;

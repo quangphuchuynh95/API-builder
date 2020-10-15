@@ -17,7 +17,7 @@ export interface APIBuilderOptions<T> {
   order?: OrderItem[]
   limit?: number
   offset?: number
-  join?: (keyof T)[]
+  join?: ((keyof T) | string)[]
 }
 
 export interface AfterCallAPIOptions {
@@ -35,7 +35,7 @@ export default class APIBuilder<T> {
   $filters: FilterItem[] = [];
   $or: FilterItem[] = [];
   $order: OrderItem[] = [];
-  $join: (keyof T)[] = [];
+  $join: ((keyof T) | string)[] = [];
   $limit: number;
   $offset: number;
   $otherParams: [string, string][] = [];
@@ -74,7 +74,7 @@ export default class APIBuilder<T> {
     return this;
   }
 
-  join(tableName: (keyof T) | (keyof T)[]): this {
+  join(tableName: ((keyof T) | string) | ((keyof T) | string)[]): this {
     if (Array.isArray(tableName)) {
       this.$join = [
         ...this.$join,
