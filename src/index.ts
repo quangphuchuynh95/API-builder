@@ -10,14 +10,14 @@ export interface ResponseGetMany<T> {
   count: number
 }
 
-export interface APIBuilderOptions {
+export interface APIBuilderOptions<T> {
   endpoint?: string
   filters?: FilterItem[]
   or?: FilterItem[]
   order?: OrderItem[]
   limit?: number
   offset?: number
-  join?: string[]
+  join?: (keyof T)[]
 }
 
 export interface AfterCallAPIOptions {
@@ -35,12 +35,12 @@ export default class APIBuilder<T> {
   $filters: FilterItem[] = [];
   $or: FilterItem[] = [];
   $order: OrderItem[] = [];
-  $join: string[] = [];
+  $join: (keyof T)[] = [];
   $limit: number;
   $offset: number;
   $otherParams: [string, string][] = [];
 
-  constructor(options: APIBuilderOptions) {
+  constructor(options: APIBuilderOptions<T>) {
     this.$endpoint = options.endpoint || this.$endpoint;
     this.$filters = options.filters || this.$filters;
     this.$or = options.or || this.$or;
@@ -50,7 +50,7 @@ export default class APIBuilder<T> {
     this.$join = options.join || this.$join;
   }
 
-  static store<TE>(name: string, options: APIBuilderOptions = {}): APIBuilder<TE> {
+  static store<TE>(name: string, options: APIBuilderOptions<TE> = {}): APIBuilder<TE> {
     return new APIBuilder({
       ...options,
       endpoint: `/${name}`,
@@ -74,7 +74,7 @@ export default class APIBuilder<T> {
     return this;
   }
 
-  join(tableName: string | string[]): this {
+  join(tableName: (keyof T) | (keyof T)[]): this {
     if (Array.isArray(tableName)) {
       this.$join = [
         ...this.$join,

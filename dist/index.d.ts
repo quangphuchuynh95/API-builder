@@ -7,14 +7,14 @@ export interface ResponseGetMany<T> {
     rows: T[];
     count: number;
 }
-export interface APIBuilderOptions {
+export interface APIBuilderOptions<T> {
     endpoint?: string;
     filters?: FilterItem[];
     or?: FilterItem[];
     order?: OrderItem[];
     limit?: number;
     offset?: number;
-    join?: string[];
+    join?: (keyof T)[];
 }
 export interface AfterCallAPIOptions {
     reset?: boolean;
@@ -26,15 +26,15 @@ export default class APIBuilder<T> {
     $filters: FilterItem[];
     $or: FilterItem[];
     $order: OrderItem[];
-    $join: string[];
+    $join: (keyof T)[];
     $limit: number;
     $offset: number;
     $otherParams: [string, string][];
-    constructor(options: APIBuilderOptions);
-    static store<TE>(name: string, options?: APIBuilderOptions): APIBuilder<TE>;
+    constructor(options: APIBuilderOptions<T>);
+    static store<TE>(name: string, options?: APIBuilderOptions<TE>): APIBuilder<TE>;
     clone(): APIBuilder<T>;
     appendParam(param: any, value: any): this;
-    join(tableName: string | string[]): this;
+    join(tableName: (keyof T) | (keyof T)[]): this;
     order(field: string | OrderItem[], direction?: 'ASC' | 'DESC'): this;
     filter(param1: string, param2?: string, param3?: string, or?: boolean): this;
     page(page: number, perPage?: number): this;
